@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        /* 进度条容器 - 可缩放的关键设置 */
+        .progress-wrapper {
+            width: 80%; /* 使用相对宽度，可随父容器变化 */
+            max-width: 800px; /* 最大宽度限制 */
+            min-width: 200px; /* 最小宽度限制 */
+            margin: 20px auto; /* 居中显示 */
+        }
+        
+        .progress-container {
+            width: 100%; /* 占满父容器宽度 */
+            height: 40px;
+            background-color: #f0f0f0;
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            /* 响应式高度设置 */
+            height: clamp(30px, 5vw, 50px);
+        }
+        
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #FD3218 0%, #FFCC01 50%, #07BAFF 100%);
+            border-radius: 20px;
+            transition: width 0.3s ease-in-out;
+            position: relative;
+        }
+        
+        /* 加载动画光点效果 - 适应不同宽度 */
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 15%; /* 使用相对宽度 */
+            max-width: 100px;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                rgba(255,255,255,0) 0%, 
+                rgba(255,255,255,0.3) 50%, 
+                rgba(255,255,255,0) 100%);
+            animation: shine 2s infinite;
+        }
+        
+        @keyframes shine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(700%); } /* 使用相对值，适应不同宽度 */
+        }
+        
+        .progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: Arial, sans-serif;
+            font-weight: bold;
+            color: #333;
+            text-shadow: 0 1px 2px rgba(255,255,255,0.7);
+            /* 响应式字体大小 */
+            font-size: clamp(14px, 3vw, 18px);
+        }
+    </style>
+</head>
+<body>
+    <!-- 外部包装器，用于控制整体缩放和布局 -->
+    <div class="progress-wrapper">
+        <div class="progress-container">
+            <div class="progress-bar"></div>
+            <div class="progress-text">0%</div>
+        </div>
+    </div>
+
+    <script>
+        const progressBar = document.querySelector('.progress-bar');
+        const progressText = document.querySelector('.progress-text');
+        const container = document.querySelector('.progress-container');
+        let progress = 0;
+        const targetProgress = 100; // 目标进度值
+        
+        // 动态调整动画，确保在不同尺寸下速度一致
+        function adjustAnimation() {
+            const containerWidth = container.offsetWidth;
+            const shineElement = window.getComputedStyle(progressBar, '::after');
+            const animationDuration = 2 * (containerWidth / 600); // 基于原始宽度600px调整
+            progressBar.style.setProperty('--animation-duration', `${animationDuration}s`);
+        }
+        
+        // 初始调整一次动画
+        adjustAnimation();
+        // 窗口大小改变时重新调整
+        window.addEventListener('resize', adjustAnimation);
+        
+        // 模拟加载进度
+        const interval = setInterval(() => {
+            // 随机增加进度（模拟真实加载波动）
+            const increment = Math.random() * 3 + 0.5;
+            progress += increment;
+            
+            // 确保进度不超过目标值
+            if (progress >= targetProgress) {
+                progress = targetProgress;
+                clearInterval(interval);
+            }
+            
+            // 更新进度条和文字
+            progressBar.style.width = `${progress}%`;
+            progressText.textContent = `${Math.floor(progress)}%`;
+        }, 100);
+    </script>
+</body>
+</html>
